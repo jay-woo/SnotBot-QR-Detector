@@ -1,0 +1,12 @@
+<launch>
+
+<node pkg="roscopter" type="driver.py" name="roscopter" output="screen" args="--device=/dev/ttyUSB0 --baudrate=57600 --enable-rc-control=true">
+</node>
+
+<node pkg="snotbot_qr" type="qr_vision" name="vision" required="True">
+</node>
+
+<node pkg="snotbot_qr" type="qr_listener" name="listener" require="True">
+</node>
+
+</launch>

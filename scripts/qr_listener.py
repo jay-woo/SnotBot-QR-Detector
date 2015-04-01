@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 import rospy
+import roslib
+roslib.load_manifest('roscopter')
+import roscopter.geometry_msgs
 from geometry_msgs.msg import Quaternion
 
 def callback(data):
