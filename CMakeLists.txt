@@ -4,6 +4,7 @@ project(snotbot_qr)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   roscpp
+  roscopter
   std_msgs
   message_generation
 )
@@ -16,7 +17,6 @@ FIND_PACKAGE(OpenCV)
 
 add_message_files(
   FILES
-  qr_data.msg
 )
 
 # add_service_files(
