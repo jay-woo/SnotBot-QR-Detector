@@ -27,6 +27,7 @@ class QR_Listener:
 		self.alt = 0.
 		self.armed = False
 		self.qr_found = False
+		self.data = [0., 0., 0., 0.]
 
 		self.qr_data = rospy.Subscriber('vision', Quaternion, self.callback)
 		self.pub_rc = rospy.Publisher('/send_rc', roscopter.msg.RC)
@@ -39,7 +40,9 @@ class QR_Listener:
 			r.sleep()
 
 	def callback(self, data):
+		old_data = self.data
 		self.data = [data.x, data.y, data.z, data.w]
+		self.qr_found = old_data != self.data
 
 	def check_armed(self, data):
 		self.armed = data.armed
@@ -54,12 +57,18 @@ class QR_Listener:
 		self.climb = data.climb
 
 	def search(self):
- 		self.command_serv(3)
- 		if not self.qr_found:
-			(self.twist[0], self.twist[1], self.twist[2], self.twist[3]) = (1500, 1500, 1550, 1500)
-		else:
-			(self.twist[0], self.twist[1], self.twist[2], self.twist[3]) = (1500, 1500, 1500, 1500)
-		self.pub_rc.publish(self.twist)
+		if not self.armed:
+			time.sleep(10)
+
+ 			self.command_serv(3)
+ 			self.armed = True
+
+ 		if self.armed:
+	 		if not self.qr_found:
+				(self.twist[0], self.twist[1], self.twist[2], self.twist[3]) = (1700, 1500, 1500, 1500)
+			else:
+				(self.twist[0], self.twist[1], self.twist[2], self.twist[3]) = (1500, 1500, 1500, 1500)
+			self.pub_rc.publish(self.twist)
 
 if __name__ == '__main__':
 	var = QR_Listener()
