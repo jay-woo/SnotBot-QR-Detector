@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <stdio.h>
+#include <ros/package.h>
 
 #include "ros/ros.h"
 #include "geometry_msgs/Quaternion.h"
@@ -42,6 +43,7 @@ int main ( int argc, char **argv )
 	ros::NodeHandle node;
 	geometry_msgs::Quaternion qr_msg;
 	ros::Publisher qr_pub = node.advertise<geometry_msgs::Quaternion>("qr_data", 1000);
+	string DIR = ros::package::getPath("snotbot_qr");
 
 	VideoCapture capture(0);
 
@@ -79,9 +81,13 @@ int main ( int argc, char **argv )
 	int key = 0;
 
 	// Adds a QR code image to the very first capture - prevents program from crashing occasionally
-	// Mat qr_dummy = imread("~/Downloads/qrcode.png", CV_MAKETYPE(image.depth(), 1));
-	// Rect roi(Point(0, 0), qr_dummy.size());
-	// qr_dummy.copyTo(image(roi));
+	Mat qr_dummy = imread(DIR + "/src/qrcode.jpg");
+	cout << qr_dummy.size() << endl;
+	Mat color_dummy(qr_dummy.size(), CV_MAKETYPE(image.depth(), 1));
+
+	cvtColor(qr_dummy, color_dummy, CV_GRAY2RGB);
+	Rect roi(0, 0, qr_dummy.cols, qr_dummy.rows);
+	color_dummy.copyTo(image(roi));
 
 	while(key != 'q')				// While loop to query for Image Input frame
 	{
