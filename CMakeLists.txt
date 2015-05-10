@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   roscpp
   roscopter
+  roslib
   std_msgs
   message_generation
 )
