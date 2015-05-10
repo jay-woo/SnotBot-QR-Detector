@@ -31,8 +31,10 @@ class MCN():
         self.failsafe = False
         self.qr_found = False
         self.data = [0., 0., 0., 0.]
+        self.old_data = self.data
+        self.counter = 0
 
-        self.qr_data = rospy.Subscriber('vision', Quaternion, self.vision_callback)
+        self.qr_data = rospy.Subscriber('qr_data', Quaternion, self.vision_callback)
         self.pub_rc = rospy.Publisher('/send_rc', roscopter.msg.RC)
         self.sub_joy = rospy.Subscriber("/joy", Joy, self.joy_callback)
         self.sub_state = rospy.Subscriber("/state", State, self.check_state)
@@ -47,19 +49,23 @@ class MCN():
         self.armed = data.armed
 
     def vision_callback(self, data):
-        old_data = self.data
+        if int(data.w) == -10:
+            self.qr_found = False
+        else:
+            self.qr_found = True
+
+        self.old_data = self.data
         self.data = [data.x, data.y, data.z, data.w]
-        self.qr_found = old_data != self.data
 
     def joy_callback(self, data):
         self.axes = data.axes
         self.buttons = data.buttons
 
         if self.searching:
-            self.x = 1600
+            self.y = 1600
         else:
-            self.x = 1500 - self.axes[0] * 300 #Scales 1200-1800
-        self.y = 1500 - self.axes[1] * 300 #Scales 1200-1800
+            self.y = 1500 - self.axes[1] * 300 #Scales 1200-1800
+        self.x = 1500 - self.axes[0] * 300 #Scales 1200-1800
         self.z = 2000 + (self.axes[3]) * 1000 #Scales 1000-2000
         self.yaw = 1500 - self.axes[2] * 300 #Scales 1200-1800
 
@@ -77,14 +83,17 @@ class MCN():
                 rospy.sleep(5)
             if self.buttons[4]:
                 self.searching = True
-            if self.buttons[5] or self.qr_found:
+            if self.buttons[5]:
                 self.searching = False
+
+        if self.qr_found and self.searching:
+            self.searching = False
 
         if self.armed:
             (self.twist[0], self.twist[1], self.twist[2], self.twist[3]) = (int(self.x), int(self.y), int(self.z), int(self.yaw))
             self.pub_rc.publish(self.twist)
 
-    # def begin_search(self):
+    # def begin_search(self):	
     #     self.searching = True
     #     self.x = 1600
 

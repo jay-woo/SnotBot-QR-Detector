@@ -54,8 +54,8 @@ int main ( int argc, char **argv )
 		return -1;
 	}
 	
-	// Sleeps for a second
-	unsigned int microseconds = 500000;
+	// Sleeps for 10 seconds
+	unsigned int microseconds = 10000000;
 	usleep(microseconds);
 
  	capture >> image;
@@ -356,6 +356,11 @@ int main ( int argc, char **argv )
 					putText(traces, size_text, Point(110, 70), fontFace, 0.5, Scalar(0,0,255), 1, 8);
 				}
 			}
+		}
+		else {
+			qr_msg.w = -10;
+			qr_pub.publish(qr_msg);
+			ros::spinOnce();
 		}
 	
 		imshow ( "Image", image );
